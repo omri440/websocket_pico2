@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snake Game</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      background-color: #222;
+      margin-top: 20px;
+      border: 2px solid lime;
+    }
+  </style>
+</head>
+<body>
+  <h1>Snake Game (Live from Pico 🐍)</h1>
+  <canvas id="gameCanvas" width="300" height="300"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const gridSize = 10; // 10x10 board
+    const cellSize = canvas.width / gridSize;
+
+    function drawGame(snake, food) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw snake
+      ctx.fillStyle = "lime";
+      snake.forEach(([x, y]) => {
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      });
+
+      // Draw food
+      ctx.fillStyle = "red";
+      ctx.fillRect(food[0] * cellSize, food[1] * cellSize, cellSize, cellSize);
+    }
+
+    // 🔌 Connect to WebSocket
+    const ws = new WebSocket("ws://" + location.host + "/snake");
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      drawGame(data.snake, data.food);
+    };
+
+    ws.onerror = () => {
+      console.error("WebSocket error.");
+    };
+  </script>
+</body>
+</html>
